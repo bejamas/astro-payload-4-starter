@@ -86,7 +86,7 @@ bunx bejamas@0.6.0 add dialog
 
 The tests need an editor. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`, then run `bun run seed`. Run `bun run build && bun run smoke` to test the production apps. The suite creates temporary content and removes it afterward. CI runs type checks, formatting, generated-file checks, a production build, fresh-database migrations, and these integration checks.
 
-The create-astro check requires a Git checkout. It serves an archive of `HEAD` to the real CLI, installs the generated project's dependencies, and runs setup, seed, type checks, a production build, and HTTP tests in a temporary directory. CI runs it separately so the template remains usable when its files or dependencies change.
+The create-astro check requires a Git checkout. It serves an archive of `HEAD` to the real CLI and installs the generated project's dependencies in a temporary directory. It runs setup, seed, type checks, and the HTTP tests against development and production servers. CI runs it separately so the template remains usable when its files or dependencies change.
 
 ## Project layout
 

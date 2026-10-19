@@ -3,7 +3,8 @@ import { readdir } from 'node:fs/promises';
 import { setTimeout } from 'node:timers/promises';
 
 process.loadEnvFile(new URL('../.env', import.meta.url));
-const server = spawn(process.execPath, ['scripts/run.mjs', 'start'], {
+const command = process.argv.includes('--dev') ? 'dev' : 'start';
+const server = spawn(process.execPath, ['scripts/run.mjs', command], {
   stdio: 'inherit',
 });
 let exited = false;
@@ -23,7 +24,9 @@ try {
     let ready = false;
     while (!ready) {
       if (exited)
-        throw new Error('The production servers exited before the checks ran.');
+        throw new Error(
+          'The application servers exited before the checks ran.',
+        );
       if (Date.now() > deadline)
         throw new Error(`Server did not become ready: ${url}`);
       try {

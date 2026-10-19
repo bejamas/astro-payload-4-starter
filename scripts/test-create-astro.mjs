@@ -49,13 +49,18 @@ async function listen(server) {
   assert.ok(address && typeof address !== 'string');
   return address.port;
 }
-async function freePort() {
-  const probe = createPortServer();
-  const port = await listen(probe);
-  await new Promise((resolve, reject) =>
-    probe.close((error) => (error ? reject(error) : resolve())),
+async function freePorts() {
+  const probes = [createPortServer(), createPortServer()];
+  const ports = await Promise.all(probes.map(listen));
+  await Promise.all(
+    probes.map(
+      (probe) =>
+        new Promise((resolve, reject) =>
+          probe.close((error) => (error ? reject(error) : resolve())),
+        ),
+    ),
   );
-  return port;
+  return ports;
 }
 async function run(args, cwd) {
   console.info(`Running bun ${args.join(' ')}`);
@@ -114,13 +119,16 @@ try {
   const readme = await readFile(path.join(project, 'README.md'), 'utf8');
   assert.doesNotMatch(readme, /ASTRO:REMOVE|bun create astro|npm create astro/);
   assert.match(readme, /bun run setup/);
-  env.CMS_URL = `http://127.0.0.1:${await freePort()}`;
-  env.SITE_URL = `http://127.0.0.1:${await freePort()}`;
-  assert.notEqual(env.CMS_URL, env.SITE_URL);
-  for (const command of ['setup', 'seed', 'check', 'build', 'smoke'])
+  const [cmsPort, sitePort] = await freePorts();
+  env.CMS_URL = `http://127.0.0.1:${cmsPort}`;
+  env.SITE_URL = `http://127.0.0.1:${sitePort}`;
+  for (const command of ['setup', 'seed', 'check'])
+    await run(['run', command], project);
+  await run(['run', 'smoke', '--dev'], project);
+  for (const command of ['build', 'smoke'])
     await run(['run', command], project);
   console.info('create-astro generated a working Astro + Payload project.');
 } finally {
-  server.close();
+  if (server.listening) server.close();
   await rm(directory, { recursive: true, force: true });
 }
