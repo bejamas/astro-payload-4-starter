@@ -11,3 +11,10 @@ apps/cms/media/
 playwright-report/
 test-results/
 .DS_Store
+
+.cloudflare-bootstrap/
+.wrangler/
+
+.dev.vars
+
+.wrangler-dev-test.jsonc

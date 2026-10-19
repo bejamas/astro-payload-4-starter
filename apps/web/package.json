@@ -10,6 +10,7 @@
     "check": "astro check"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "14.4.1",
     "@astrojs/node": "11.1.9",
     "@data-slot/accordion": "^1.1.2",
     "@lucide/astro": "1.47.0",
@@ -28,5 +29,11 @@
   "devDependencies": {
     "@astrojs/check": "0.9.9",
     "typescript": "6.0.3"
+  },
+  "imports": {
+    "#runtime": {
+      "workerd": "./src/lib/runtime.cloudflare.ts",
+      "default": "./src/lib/runtime.node.ts"
+    }
   }
 }

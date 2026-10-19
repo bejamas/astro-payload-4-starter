@@ -1,0 +1,35 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "account_id": "ff61e7041ed4d8e41e672162153d3fda",
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "vars": {
+    "NODE_ENV": "production",
+    "CMS_URL": "https://astro-payload-4-starter.bejamas-lab.workers.dev",
+    "SITE_URL": "https://astro-payload-4-starter.bejamas-lab.workers.dev",
+    "CLOUDFLARE_BUILD": "1",
+  },
+  "name": "astro-payload-4-starter",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+  },
+  "services": [
+    {
+      "binding": "CMS",
+      "service": "astro-payload-4-cms",
+    },
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "f6794c1fb78b4951b808e92001dc8543",
+    },
+  ],
+}

@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import node from '@astrojs/node';
+import cloudflare from '@astrojs/cloudflare';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -8,7 +9,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: process.env.SITE_URL || 'http://localhost:4321',
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: process.env.CLOUDFLARE_BUILD
+    ? cloudflare({ imageService: 'passthrough' })
+    : node({ mode: 'standalone' }),
   server: {
     port:
       Number(new URL(process.env.SITE_URL || 'http://localhost:4321').port) ||

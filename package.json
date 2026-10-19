@@ -24,11 +24,16 @@
     "migrate": "node scripts/run.mjs migrate",
     "migrate:create": "node scripts/run.mjs migrate:create",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "deploy:cloudflare": "node scripts/cloudflare-deploy.mjs",
+    "bootstrap:cloudflare": "node scripts/cloudflare-bootstrap.mjs"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20261019.1",
+    "jsonc-parser": "3.3.1",
     "prettier": "3.9.9",
-    "prettier-plugin-astro": "1.0.1"
+    "prettier-plugin-astro": "1.0.1",
+    "wrangler": "4.151.2"
   },
   "trustedDependencies": [
     "@parcel/watcher",

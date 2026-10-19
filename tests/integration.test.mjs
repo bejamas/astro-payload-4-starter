@@ -42,11 +42,10 @@ before(async () => {
       password: process.env.SEED_ADMIN_PASSWORD,
     }),
   });
-  assert.equal(
-    response.status,
-    200,
-    'The seeded editor must be able to log in.',
-  );
+  if (response.status !== 200)
+    throw new Error(
+      `The seeded editor could not log in: ${response.status} ${(await response.text()).slice(0, 500)}`,
+    );
   token = (await response.json()).token;
   assert.ok(token);
 });
@@ -87,7 +86,7 @@ test('public pages, rich text, media, metadata, and missing routes work', async 
   assert.ok(imageURL, 'The uploaded cover should render in the article.');
   const image = await fetch(imageURL);
   assert.equal(image.status, 200);
-  assert.match(image.headers.get('content-type'), /image\/webp/);
+  assert.match(image.headers.get('content-type'), /image\/(webp|png)/);
   for (const path of [
     '/missing-page',
     '/journal/missing-post',
@@ -244,7 +243,7 @@ test('post drafts stay off the journal and sitemap', async () => {
   assert.match(await preview.text(), /Private post/);
 });
 
-test('the upload endpoint creates and serves a resized WebP variant', async () => {
+test('uploads persist and serve images with the configured transformer', async () => {
   const media = await (await api('media?limit=1')).json();
   const source = await fetch(new URL(media.docs[0].url, cms));
   assert.equal(
@@ -254,7 +253,8 @@ test('the upload endpoint creates and serves a resized WebP variant', async () =
   );
   const form = new FormData();
   form.append('_payload', JSON.stringify({ alt: 'Integration test image' }));
-  form.append('file', await source.blob(), `test-${randomUUID()}.png`);
+  const original = await source.blob();
+  form.append('file', original, `test-${randomUUID()}.png`);
   const response = await api('media', {
     method: 'POST',
     headers: { Authorization: `JWT ${token}` },
@@ -263,6 +263,16 @@ test('the upload endpoint creates and serves a resized WebP variant', async () =
   assert.equal(response.status, 201, await response.clone().text());
   const { doc } = await response.json();
   created.push({ collection: 'media', id: doc.id });
+  const stored = await fetch(new URL(doc.url, cms));
+  assert.equal(stored.status, 200);
+  assert.deepEqual(
+    new Uint8Array(await stored.arrayBuffer()),
+    new Uint8Array(await original.arrayBuffer()),
+  );
+  if (process.env.DEPLOYMENT_TARGET === 'cloudflare') {
+    assert.equal(doc.variants?.card, undefined);
+    return;
+  }
   assert.equal(doc.variants.card.width, 960);
   assert.equal(doc.variants.card.height, 720);
   const variant = await fetch(new URL(doc.variants.card.url, cms));

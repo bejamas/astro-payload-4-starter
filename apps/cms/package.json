@@ -15,9 +15,12 @@
     "migrate:create": "payload migrate:create"
   },
   "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "@payloadcms/db-d1-sqlite": "4.0.0-beta.3",
     "@payloadcms/db-sqlite": "4.0.0-beta.3",
     "@payloadcms/graphql": "4.0.0-beta.3",
     "@payloadcms/richtext-lexical": "4.0.0-beta.3",
+    "@payloadcms/storage-r2": "4.0.0-beta.3",
     "@payloadcms/tanstack-start": "4.0.0-beta.3",
     "@payloadcms/transformer-sharp": "4.0.0-beta.3",
     "@payloadcms/ui": "4.0.0-beta.3",
@@ -39,5 +42,8 @@
     "tsx": "4.23.15",
     "typescript": "6.0.3",
     "vite": "8.3.0"
+  },
+  "imports": {
+    "#platform": "./src/platform.node.ts"
   }
 }

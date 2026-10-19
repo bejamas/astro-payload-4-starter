@@ -1,6 +1,9 @@
+import { proxyCMSRequest } from '#runtime';
 import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  const proxied = proxyCMSRequest(context.request);
+  if (proxied) return proxied;
   let response: Response;
   try {
     response = await next();

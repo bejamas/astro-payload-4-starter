@@ -1,3 +1,4 @@
+import { cmsFetch } from '#runtime';
 import { PayloadSDK } from '@payloadcms/sdk';
 import type { Config, Media } from '@starter/content';
 
@@ -13,7 +14,7 @@ export function createCMS(token?: string) {
       headers: token ? { Authorization: `JWT ${token}` } : {},
     },
     fetch: (url, init) =>
-      fetch(url, { ...init, signal: AbortSignal.timeout(15_000) }),
+      cmsFetch(url, { ...init, signal: AbortSignal.timeout(15_000) }),
   });
 }
 export const cms = createCMS();

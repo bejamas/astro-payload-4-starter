@@ -13,8 +13,22 @@ export default defineConfig(
         tanstackStart(pluginOptions.tanstackStart),
         viteReact(pluginOptions.react),
       ],
+      ssr: { external: ['cloudflare:workers'] },
+      environments: {
+        rsc: { build: { rollupOptions: { external: ['cloudflare:workers'] } } },
+        ssr: { build: { rollupOptions: { external: ['cloudflare:workers'] } } },
+      },
       resolve: {
-        alias: { '@/': fileURLToPath(new URL('./src/', import.meta.url)) },
+        alias: {
+          '@/': fileURLToPath(new URL('./src/', import.meta.url)),
+          ...(process.env.CLOUDFLARE_BUILD
+            ? {
+                '#platform': fileURLToPath(
+                  new URL('./src/platform.cloudflare.ts', import.meta.url),
+                ),
+              }
+            : {}),
+        },
       },
       server: {
         port:

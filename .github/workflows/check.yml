@@ -39,3 +39,9 @@ jobs:
       - name: Apply migrations to a fresh production database
         run: NODE_ENV=production DATABASE_URL=file:./data/migration-check.db bun run migrate
       - run: bun run smoke
+      - name: Build Cloudflare profiles
+        run: CLOUDFLARE_BUILD=1 bun run build
+      - name: Validate Cloudflare bundles
+        run: |
+          bunx wrangler deploy --dry-run --config apps/cms/wrangler.jsonc
+          bunx wrangler deploy --dry-run --config apps/web/dist/server/wrangler.json

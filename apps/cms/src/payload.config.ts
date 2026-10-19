@@ -1,6 +1,5 @@
-import { sqliteAdapter } from '@payloadcms/db-sqlite';
+import { platform } from '#platform';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import { sharpTransformer } from '@payloadcms/transformer-sharp';
 import path from 'node:path';
 import {
   buildConfig,
@@ -89,29 +88,8 @@ export default buildConfig({
     importMap: { baseDir: path.join(appRoot, 'src') },
     meta: { titleSuffix: '| Fieldnotes CMS' },
   },
-  db: sqliteAdapter({
-    client: { url: process.env.DATABASE_URL || 'file:./data/payload.db' },
-    migrationDir: path.join(appRoot, 'src/migrations'),
-  }),
+  ...platform,
   editor: lexicalEditor(),
-  upload: {
-    transformers: [
-      sharpTransformer({
-        collections: {
-          media: {
-            variants: [
-              {
-                name: 'card',
-                width: 960,
-                height: 720,
-                formatOptions: { format: 'webp' },
-              },
-            ],
-          },
-        },
-      }),
-    ],
-  },
   typescript: {
     outputFile: path.resolve(
       appRoot,
@@ -263,7 +241,7 @@ export default buildConfig({
       upload: {
         staticDir: path.resolve(appRoot, process.env.MEDIA_DIR || 'media'),
         mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
-        adminThumbnail: 'card',
+        adminThumbnail: process.env.CLOUDFLARE_BUILD ? undefined : 'card',
       },
       fields: [
         { name: 'alt', type: 'text', required: true },

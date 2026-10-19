@@ -7,3 +7,7 @@ node_modules
 .astro
 playwright-report
 test-results
+
+apps/*/worker-configuration.d.ts
+.cloudflare-bootstrap
+.wrangler

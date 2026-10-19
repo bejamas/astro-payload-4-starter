@@ -1,0 +1,49 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "account_id": "ff61e7041ed4d8e41e672162153d3fda",
+  "compatibility_date": "2026-10-19",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "vars": {
+    "NODE_ENV": "production",
+    "CMS_URL": "https://astro-payload-4-starter.bejamas-lab.workers.dev",
+    "SITE_URL": "https://astro-payload-4-starter.bejamas-lab.workers.dev",
+    "CLOUDFLARE_BUILD": "1",
+  },
+  "name": "astro-payload-4-cms",
+  "main": "cloudflare/worker.mjs",
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+  },
+  "d1_databases": [
+    {
+      "binding": "D1",
+      "database_name": "astro-payload-4-content",
+      "database_id": "dcbf8293-ddd8-4417-b12b-de36052d769f",
+      "migrations_dir": "cloudflare/migrations",
+    },
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "astro-payload-4-media",
+    },
+  ],
+  "alias": {
+    "payload": "./node_modules/payload/dist/index.js",
+    "crypto": "./cloudflare/crypto.ts",
+  },
+  "minify": true,
+  "define": {
+    "import.meta.url": "\"file:///worker.js\"",
+  },
+  "limits": {
+    "cpu_ms": 60000,
+  },
+}

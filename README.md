@@ -79,7 +79,7 @@ The tests need an editor. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`, then
 
 See [the architecture decision](docs/architecture.md) for the framework choice and the request flow.
 
-## Deploy
+## Deploy to Node
 
 Run the two Node services on a host with a persistent filesystem, or deploy them independently. The repo includes the initial database migration and no hosting-provider credentials.
 
@@ -92,6 +92,49 @@ Run the two Node services on a host with a persistent filesystem, or deploy them
 7. Create the first admin before opening the CMS to the public. All admin users in this starter have full content and user-management access. Configure a real email adapter for password recovery; development email is logged to the console.
 
 Astro renders on each request and returns `503` if Payload is unavailable. This starter has saved-draft preview, one language, and public image uploads. It does not include an Astro adapter for the Payload admin, unsaved live preview, or MCP integration.
+
+## Cloudflare deployment
+
+The live demo runs in **Bejamas Dev** at <https://astro-payload-4-starter.bejamas-lab.workers.dev>. Open `/admin` on that origin for the CMS.
+
+The deployment has two Workers. Astro is public and forwards the admin, API, and TanStack asset requests to the private CMS Worker through a service binding. D1 stores content and accounts; R2 stores uploads. Keeping one public origin lets the editor's secure login cookie authorize saved draft previews.
+
+The default local and Node production profiles retain SQLite and Sharp. The Cloudflare profile uses the official Payload D1 and R2 adapters and serves original uploads without Sharp resizing. It includes a PBKDF2 compatibility module because hosted Workers cap native iterations below Payload beta.3's 600,000 iterations. The module preserves Payload's hash format and iteration count; tests compare its output with Node.
+
+The checked-in Wrangler configs identify the Bejamas Dev demo resources. For a fork, change both account IDs, Worker names, the public URL, D1 database ID, R2 bucket, KV namespace ID, and CMS service binding before deploying. Use a Workers Paid account: the admin rendering and password hashing exceed the Free plan’s CPU limit. Enable R2 separately in your Cloudflare account. No R2 access keys are needed: the CMS uses its bucket binding.
+
+For an existing provisioned deployment, use a Cloudflare token scoped to that account, or your saved Wrangler login:
+
+```sh
+# Omit env -u when intentionally using an account-scoped API token.
+env -u CLOUDFLARE_API_TOKEN bun run deploy:cloudflare
+```
+
+The command validates the account and service configuration, builds both Worker profiles, applies committed D1 migrations, and deploys the private CMS before the public site. It keeps content, uploads, and the existing signing secret.
+
+For a new deployment, provision the resources in the two Wrangler configs first. Prepare sample data and a fresh admin account once:
+
+```sh
+CLOUDFLARE_ADMIN_EMAIL=you@example.com bun run bootstrap:cloudflare
+bunx wrangler d1 migrations apply astro-payload-4-content --remote --config apps/cms/wrangler.jsonc
+bunx wrangler d1 execute astro-payload-4-content --remote --file .cloudflare-bootstrap/seed.sql --config apps/cms/wrangler.jsonc
+bunx wrangler secret bulk .cloudflare-bootstrap/secrets.json --config apps/cms/wrangler.jsonc
+```
+
+The bootstrap refuses to overwrite an earlier run. It seeds a new isolated local database and writes the admin credentials to `.env.cloudflare.local` with owner-only permissions. Both that file and `.cloudflare-bootstrap/` are ignored by Git. Keep them private. Never import a developer's existing database into a public demo.
+
+Upload each file from `.cloudflare-bootstrap/media/` into the configured R2 bucket using its filename as the object key, then run `deploy:cloudflare`. Import the seed and provision the signing secret before exposing the public site, so an anonymous visitor cannot claim the first admin account. Seeding is deliberately separate from normal redeployment.
+
+Verify a running Cloudflare deployment with:
+
+```sh
+DEPLOYMENT_TARGET=cloudflare \
+SITE_URL=https://astro-payload-4-starter.bejamas-lab.workers.dev \
+CMS_URL=https://astro-payload-4-starter.bejamas-lab.workers.dev \
+node --env-file=.env.cloudflare.local --test tests/*.test.mjs
+```
+
+These checks log in, test anonymous access restrictions, create private drafts, verify authenticated previews, publish content, upload and read an image, and remove their test records. The Cloudflare upload check compares the stored original bytes; the Node profile also checks the resized WebP variant.
 
 ## License
 
