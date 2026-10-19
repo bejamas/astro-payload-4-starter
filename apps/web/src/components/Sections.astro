@@ -1,0 +1,118 @@
+---
+import type { Page } from '@starter/content';
+import { ArrowUpRight, Asterisk, ArrowDown } from '@lucide/astro';
+import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/ui/accordion';
+import { Button } from '@/ui/button';
+import { safeHref } from '@/lib/cms';
+import LatestPosts from './LatestPosts.astro';
+interface Props {
+  page: Page;
+}
+const { page } = Astro.props;
+---
+
+{page.sections.map((section, index) => (
+  <>
+    {section.blockType === 'hero' && (
+      <>
+        <section class="hero shell">
+          <div class="hero-main">
+            <p class="eyebrow">
+              <span class="status-dot"></span>
+              {section.eyebrow}
+            </p>
+            <h1>{section.heading}</h1>
+            <p class="hero-description">{section.description}</p>
+            {section.linkLabel && (
+              <Button
+                as="a"
+                href={safeHref(section.href)}
+                size="lg"
+                class="hero-button"
+              >
+                {section.linkLabel}
+                <ArrowUpRight size={18} />
+              </Button>
+            )}
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-grid"></div>
+            <div class="art-orbit"></div>
+            <Asterisk class="art-flower" stroke-width={0.9} />
+            <span class="art-label">
+              A study in possibility
+              <br />
+              No. 001 / Always curious
+            </span>
+            <span class="art-index">F/N</span>
+          </div>
+        </section>
+        <div class="hero-foot shell">
+          <span>Good ideas need a little space.</span>
+          <ArrowDown size={17} />
+        </div>
+        {page.slug === 'home' && index === 0 && <LatestPosts />}
+      </>
+    )}
+    {section.blockType === 'features' && (
+      <section class="feature-section">
+        <div class="shell">
+          <p class="eyebrow">What we believe</p>
+          <h2>{section.heading}</h2>
+          <div class="feature-grid">
+            {section.items?.map((item, i) => (
+              <div>
+                <span class="feature-number">0{i + 1}</span>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+    {section.blockType === 'content' && (
+      <section
+        class="prose content-section shell"
+        set:html={convertLexicalToHTML({ data: section.body })}
+      />
+    )}
+    {section.blockType === 'faq' && (
+      <section class="faq-section shell">
+        <div>
+          <p class="eyebrow">The details</p>
+          <h2>{section.heading}</h2>
+        </div>
+        <Accordion class="faq-list">
+          {section.items?.map((item, i) => (
+            <AccordionItem value={`faq-${index}-${i}`}>
+              <AccordionTrigger class="text-base py-6">
+                {item.question}
+              </AccordionTrigger>
+              <AccordionContent class="text-base text-muted-foreground leading-relaxed">
+                {item.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </section>
+    )}
+    {section.blockType === 'cta' && (
+      <section class="cta-section shell">
+        <Asterisk class="cta-asterisk" size={56} stroke-width={1} />
+        <h2>{section.heading}</h2>
+        <p>{section.description}</p>
+        <Button as="a" href={safeHref(section.href)} size="lg">
+          {section.linkLabel}
+          <ArrowUpRight size={17} />
+        </Button>
+      </section>
+    )}
+  </>
+))}

@@ -1,0 +1,46 @@
+---
+import { PayloadSDKError } from '@payloadcms/sdk';
+import Site from '@/layouts/Site.astro';
+import Sections from '@/components/Sections.astro';
+import PostBody from '@/components/PostBody.astro';
+import { createCMS, getPage, getPost } from '@/lib/cms';
+const collection = Astro.params.collection;
+if (collection !== 'pages' && collection !== 'posts')
+  return new Response('Not found', { status: 404 });
+const token = Astro.cookies.get('payload-token')?.value;
+if (!token)
+  return new Response('Sign in to Payload to preview saved drafts.', {
+    status: 401,
+  });
+const client = createCMS(token);
+try {
+  const { user } = await client.me({ collection: 'users' });
+  if (!user)
+    return new Response('Sign in to Payload to preview saved drafts.', {
+      status: 401,
+    });
+} catch (error) {
+  if (error instanceof PayloadSDKError && [401, 403].includes(error.status))
+    return new Response('Sign in to Payload to preview saved drafts.', {
+      status: 401,
+    });
+  throw error;
+}
+const slug = Astro.params.slug || '';
+const page =
+  collection === 'pages' ? await getPage(slug, client, true) : undefined;
+const post =
+  collection === 'posts' ? await getPost(slug, client, true) : undefined;
+if (!page && !post) return new Response('Draft not found', { status: 404 });
+const canonical =
+  collection === 'posts'
+    ? `/journal/${slug}`
+    : slug === 'home'
+      ? '/'
+      : `/${slug}`;
+---
+
+<Site title={page?.title || post?.title} preview canonical={canonical}>
+  {page && <Sections page={page} />}
+  {post && <PostBody post={post} />}
+</Site>

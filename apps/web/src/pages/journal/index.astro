@@ -1,0 +1,64 @@
+---
+import Site from '@/layouts/Site.astro';
+import PostCard from '@/components/PostCard.astro';
+import { cms } from '@/lib/cms';
+const rawPage = Astro.url.searchParams.get('page') || '1';
+const currentPage = /^\d+$/.test(rawPage) ? Number(rawPage) : 0;
+const validPage = Number.isSafeInteger(currentPage) && currentPage > 0;
+const posts = validPage
+  ? await cms.find({
+      collection: 'posts',
+      where: { _status: { equals: 'published' } },
+      sort: '-publishedAt',
+      limit: 9,
+      page: currentPage,
+      depth: 1,
+    })
+  : null;
+const missing = !posts || currentPage > Math.max(1, posts.totalPages);
+if (missing) Astro.response.status = 404;
+---
+
+<Site
+  title="Journal"
+  canonical={currentPage > 1 ? `/journal?page=${currentPage}` : '/journal'}
+>
+  <section class="journal-header shell">
+    <p class="eyebrow">The journal</p>
+    <h1>
+      A place to
+      <br />
+      think out loud.
+    </h1>
+    <p>Ideas, observations, and a few things we have learned along the way.</p>
+  </section>
+  <section class="journal-posts shell" aria-label="Journal stories">
+    {missing ? (
+      <p>
+        This page does not exist.{' '}
+        <a class="text-link" href="/journal">
+          Back to the journal
+        </a>
+      </p>
+    ) : (
+      <>
+        <div class="post-grid">
+          {posts.docs.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+        {!posts.docs.length && (
+          <p>The notebook is open. The first story is on its way.</p>
+        )}
+        <nav class="pagination" aria-label="Journal pages">
+          {posts.hasPrevPage && (
+            <a href={`/journal?page=${currentPage - 1}`}>← Newer stories</a>
+          )}
+          {posts.hasNextPage && (
+            <a href={`/journal?page=${currentPage + 1}`}>Older stories →</a>
+          )}
+        </nav>
+      </>
+    )}
+  </section>
+</Site>

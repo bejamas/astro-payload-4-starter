@@ -1,0 +1,39 @@
+{
+  "name": "astro-payload-4-starter",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "bun@1.3.14",
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/run.mjs dev",
+    "build": "node scripts/run.mjs build",
+    "start": "node scripts/run.mjs start",
+    "seed": "node scripts/run.mjs seed",
+    "generate": "node scripts/run.mjs generate",
+    "check": "node scripts/run.mjs check",
+    "test": "node --env-file=.env --test tests/*.test.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "migrate": "node scripts/run.mjs migrate",
+    "migrate:create": "node scripts/run.mjs migrate:create",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "3.9.9",
+    "prettier-plugin-astro": "1.0.1"
+  },
+  "trustedDependencies": [
+    "@parcel/watcher",
+    "esbuild",
+    "sharp",
+    "unrs-resolver"
+  ]
+}

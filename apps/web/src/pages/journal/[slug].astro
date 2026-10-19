@@ -1,0 +1,30 @@
+---
+import Site from '@/layouts/Site.astro';
+import PostBody from '@/components/PostBody.astro';
+import { getPost, mediaImage } from '@/lib/cms';
+const post = await getPost(Astro.params.slug || '');
+if (!post) Astro.response.status = 404;
+---
+
+<Site
+  title={post?.seo?.title || post?.title || 'Story not found'}
+  description={post?.seo?.description || post?.excerpt}
+  image={mediaImage(post?.cover)?.src}
+>
+  {post ? (
+    <PostBody post={post} />
+  ) : (
+    <section class="empty-state shell">
+      <p class="eyebrow">404</p>
+      <h1>
+        A story for
+        <br />
+        another day.
+      </h1>
+      <p>We could not find that story.</p>
+      <a class="text-link" href="/journal">
+        Back to the journal →
+      </a>
+    </section>
+  )}
+</Site>

@@ -1,0 +1,30 @@
+---
+import { ArrowUpRight } from '@lucide/astro';
+import { cms } from '@/lib/cms';
+import PostCard from './PostCard.astro';
+const posts = await cms.find({
+  collection: 'posts',
+  where: { _status: { equals: 'published' } },
+  sort: '-publishedAt',
+  limit: 3,
+  depth: 1,
+});
+---
+
+<section class="latest-section shell" aria-labelledby="latest-heading">
+  <div class="section-top">
+    <div>
+      <p class="eyebrow">Fresh from the notebook</p>
+      <h2 id="latest-heading">The latest thinking.</h2>
+    </div>
+    <a class="text-link" href="/journal">
+      All stories <ArrowUpRight size={18} />
+    </a>
+  </div>
+  <div class="post-grid">
+    {posts.docs.map((post) => (
+      <PostCard post={post} />
+    ))}
+  </div>
+  {!posts.docs.length && <p>New stories are on their way.</p>}
+</section>

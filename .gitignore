@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.*.local
+.astro/
+dist/
+.output/
+.tanstack/
+*.tsbuildinfo
+apps/cms/data/
+apps/cms/media/
+playwright-report/
+test-results/
+.DS_Store

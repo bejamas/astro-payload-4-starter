@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.bejamas.com/schema.json",
+  "style": "bejamas-juno",
+  "tailwind": {
+    "config": "",
+    "css": "src/styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@shadcnblocks": "https://ui.bejamas.com/r/shadcnblocks/styles/{style}/{name}.json"
+  }
+}

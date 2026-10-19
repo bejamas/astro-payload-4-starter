@@ -1,0 +1,42 @@
+---
+import type { Post } from '@starter/content';
+import { ArrowUpRight } from '@lucide/astro';
+import { Card } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+import { dateLabel, mediaImage } from '@/lib/cms';
+const { post } = Astro.props as { post: Post };
+const image = mediaImage(post.cover);
+---
+
+<article>
+  <Card class="post-card rounded-none border-0 bg-transparent p-0 shadow-none ring-0 gap-0">
+    <a
+      href={`/journal/${post.slug}`}
+      class="post-image"
+      aria-label={`Read ${post.title}`}
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      {image ? (
+        <img {...image} loading="lazy" decoding="async" />
+      ) : (
+        <div class="image-placeholder">
+          <span>Fieldnotes</span>
+        </div>
+      )}
+    </a>
+    <div class="post-card-content">
+      <div class="post-meta">
+        <Badge variant="outline">{post.category}</Badge>
+        <time datetime={post.publishedAt}>{dateLabel(post.publishedAt)}</time>
+      </div>
+      <h3>
+        <a href={`/journal/${post.slug}`}>
+          {post.title}
+          <ArrowUpRight size={22} stroke-width={1.5} />
+        </a>
+      </h3>
+      <p>{post.excerpt}</p>
+    </div>
+  </Card>
+</article>

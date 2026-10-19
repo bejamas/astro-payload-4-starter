@@ -1,0 +1,29 @@
+---
+import Site from '@/layouts/Site.astro';
+import Sections from '@/components/Sections.astro';
+import { getPage } from '@/lib/cms';
+if (Astro.params.slug === 'home') return Astro.redirect('/', 301);
+const page = await getPage(Astro.params.slug || '');
+if (!page) Astro.response.status = 404;
+---
+
+<Site
+  title={page?.seo?.title || page?.title || 'Page not found'}
+  description={page?.seo?.description || undefined}
+>
+  {page ? (
+    <Sections page={page} />
+  ) : (
+    <section class="empty-state shell">
+      <p class="eyebrow">404</p>
+      <h1>
+        This page is still
+        <br />a blank sheet.
+      </h1>
+      <p>We could not find that page.</p>
+      <a class="text-link" href="/">
+        Back to the notebook →
+      </a>
+    </section>
+  )}
+</Site>

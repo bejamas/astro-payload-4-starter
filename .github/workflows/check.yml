@@ -1,0 +1,41 @@
+name: Check starter
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CMS_URL: http://127.0.0.1:3000
+      SITE_URL: http://127.0.0.1:4321
+      SEED_ADMIN_EMAIL: ci@example.test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run setup
+      - name: Create temporary test credentials
+        run: |
+          password=$(node -e "process.stdout.write(require('node:crypto').randomBytes(24).toString('hex'))")
+          echo "::add-mask::$password"
+          echo "SEED_ADMIN_PASSWORD=$password" >> "$GITHUB_ENV"
+      - run: bun run seed
+      - run: bun run generate
+      - run: git diff --exit-code -- packages/content/payload-types.ts apps/cms/src/app/_payload/importMap.js
+      - run: bun run format:check
+      - run: bun run check
+      - run: bun run build
+      - name: Apply migrations to a fresh production database
+        run: NODE_ENV=production DATABASE_URL=file:./data/migration-check.db bun run migrate
+      - run: bun run smoke

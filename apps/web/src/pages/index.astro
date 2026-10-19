@@ -1,0 +1,25 @@
+---
+import Site from '@/layouts/Site.astro';
+import Sections from '@/components/Sections.astro';
+import { getPage } from '@/lib/cms';
+const page = await getPage('home');
+if (!page) Astro.response.status = 404;
+---
+
+<Site
+  title={page?.seo?.title || undefined}
+  description={page?.seo?.description || undefined}
+>
+  {page ? (
+    <Sections page={page} />
+  ) : (
+    <section class="empty-state shell">
+      <h1>
+        The notebook
+        <br />
+        is open.
+      </h1>
+      <p>Our first page is on its way.</p>
+    </section>
+  )}
+</Site>

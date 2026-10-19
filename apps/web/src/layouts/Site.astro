@@ -1,0 +1,104 @@
+---
+import '@/styles/globals.css';
+import { ArrowUpRight, Asterisk } from '@lucide/astro';
+import { Button } from '@/ui/button';
+import { cms, safeHref, siteURL } from '@/lib/cms';
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  preview?: boolean;
+  image?: string;
+}
+const {
+  title,
+  description,
+  canonical = Astro.url.pathname,
+  preview = false,
+  image,
+} = Astro.props;
+const settings = await cms.findGlobal({ slug: 'site-settings' });
+const pageTitle = title ? `${title} | ${settings.name}` : settings.name;
+const navigation = settings.navigation || [];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description || settings.description} />
+    <link rel="canonical" href={new URL(canonical, siteURL).href} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta
+      property="og:description"
+      content={description || settings.description}
+    />
+    <meta property="og:url" content={new URL(canonical, siteURL).href} />
+    {image && <meta property="og:image" content={image} />}
+    <meta
+      name="twitter:card"
+      content={image ? 'summary_large_image' : 'summary'}
+    />
+    {preview && <meta name="robots" content="noindex, nofollow" />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
+    {preview && (
+      <aside class="preview-banner">
+        Saved draft preview. Save in Payload, then refresh to see changes.{' '}
+        <a href={canonical}>Exit preview</a>
+      </aside>
+    )}
+    <header class="site-header shell">
+      <a class="wordmark" href="/" aria-label={`${settings.name} home`}>
+        <Asterisk size={29} stroke-width={1.6} /> {settings.name}
+        <span class="wordmark-dot">.</span>
+      </a>
+      <nav aria-label="Main navigation">
+        {navigation.map((item) => (
+          <a
+            href={safeHref(item.href)}
+            aria-current={Astro.url.pathname === item.href ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))}
+        <Button
+          as="a"
+          href="https://github.com/bejamas/astro-payload-4-starter"
+          variant="outline"
+          size="sm"
+          class="source-link"
+        >
+          Get the starter <ArrowUpRight size={15} />
+        </Button>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer shell">
+      <div>
+        <a class="wordmark" href="/">
+          <Asterisk size={25} stroke-width={1.6} /> {settings.name}.
+        </a>
+        <p>{settings.footer}</p>
+      </div>
+      <div class="footer-meta">
+        <span>Made with Astro + Payload 4</span>
+        <a href="https://ui.bejamas.com">
+          Components by Bejamas <ArrowUpRight size={13} />
+        </a>
+        <span>
+          © {new Date().getFullYear()} {settings.name}
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

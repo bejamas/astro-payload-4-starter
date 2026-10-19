@@ -1,0 +1,39 @@
+---
+import type { Post } from '@starter/content';
+import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html';
+import { ArrowLeft } from '@lucide/astro';
+import { Badge } from '@/ui/badge';
+import { dateLabel, mediaImage } from '@/lib/cms';
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const image = mediaImage(post.cover);
+---
+
+<article class="article shell">
+  <a class="text-link" href="/journal">
+    <ArrowLeft size={16} /> Back to the journal
+  </a>
+  <header class="article-header">
+    <div class="post-meta">
+      <Badge variant="outline">{post.category}</Badge>
+      <time datetime={post.publishedAt}>{dateLabel(post.publishedAt)}</time>
+    </div>
+    <h1>{post.title}</h1>
+    <p>{post.excerpt}</p>
+    <span class="byline">Words by {post.author}</span>
+  </header>
+  {image && (
+    <img
+      class="article-cover"
+      {...image}
+      loading="eager"
+      fetchpriority="high"
+    />
+  )}
+  <div
+    class="prose article-body"
+    set:html={convertLexicalToHTML({ data: post.body })}
+  />
+</article>
