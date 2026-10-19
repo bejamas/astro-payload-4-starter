@@ -206,7 +206,7 @@ try {
             {
               question: 'Can I try the new Payload admin?',
               answer:
-                'Yes. Open localhost:3000/admin to create your first user, or sign in with the credentials you supplied when seeding.',
+                'Yes. Run the starter locally to create your own admin account, or sign in to the hosted admin with an editor account.',
             },
           ],
         },
