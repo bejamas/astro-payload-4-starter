@@ -21,6 +21,7 @@
     "check": "node scripts/run.mjs check",
     "test": "node --env-file=.env --test tests/*.test.mjs",
     "smoke": "node scripts/smoke.mjs",
+    "test:create-astro": "node scripts/test-create-astro.mjs",
     "migrate": "node scripts/run.mjs migrate",
     "migrate:create": "node scripts/run.mjs migrate:create",
     "format": "prettier --write .",

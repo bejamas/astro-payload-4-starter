@@ -6,12 +6,34 @@ Astro 7 renders the website. Payload 4 runs its official TanStack Start admin in
 
 ![The Fieldnotes demo homepage](docs/screenshots/home-desktop.jpg)
 
-## Run locally
+## Create a project
 
-Install Node 24.15 or newer and Bun 1.3.14, then run:
+Install Node 24.15 or newer and Bun 1.3.14.
+
+<!-- ASTRO:REMOVE:START -->
+
+Create a project with Astro's CLI and accept dependency installation:
 
 ```sh
-bun install --frozen-lockfile
+bun create astro@latest my-project --template bejamas/astro-payload-4-starter --no-ai
+cd my-project
+```
+
+This command copies both apps and the shared content package. `--no-ai` skips the CLI's generic agent instructions, which assume a single Astro app.
+
+To launch the same CLI through npm, skip its dependency installation and install the workspace with Bun:
+
+```sh
+npm create astro@latest my-project -- --template bejamas/astro-payload-4-starter --no-install --no-ai
+cd my-project
+bun install
+```
+
+<!-- ASTRO:REMOVE:END -->
+
+Initialize the local environment and sample content, then start both apps:
+
+```sh
 bun run setup
 bun run seed
 bun run dev
@@ -48,20 +70,23 @@ bunx bejamas@0.6.0 add dialog
 
 ## Commands
 
-| Command                            | Result                                                     |
-| ---------------------------------- | ---------------------------------------------------------- |
-| `bun run dev`                      | Start both development servers                             |
-| `bun run generate`                 | Regenerate shared content types and the admin import map   |
-| `bun run check`                    | Type check the CMS and Astro components                    |
-| `bun run format:check`             | Check formatting                                           |
-| `bun run build`                    | Build both apps without a running CMS                      |
-| `bun run start`                    | Run both production builds                                 |
-| `bun run test`                     | Test the running apps through HTTP                         |
-| `bun run smoke`                    | Start production builds, run the HTTP tests, and stop them |
-| `bun run migrate:create my-change` | Generate a database migration after a schema change        |
-| `bun run migrate`                  | Apply database migrations                                  |
+| Command                            | Result                                                                |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| `bun run dev`                      | Start both development servers                                        |
+| `bun run generate`                 | Regenerate shared content types and the admin import map              |
+| `bun run check`                    | Type check the CMS and Astro components                               |
+| `bun run format:check`             | Check formatting                                                      |
+| `bun run build`                    | Build both apps without a running CMS                                 |
+| `bun run start`                    | Run both production builds                                            |
+| `bun run test`                     | Test the running apps through HTTP                                    |
+| `bun run smoke`                    | Start production builds, run the HTTP tests, and stop them            |
+| `bun run test:create-astro`        | Scaffold this commit with create-astro and test the generated project |
+| `bun run migrate:create my-change` | Generate a database migration after a schema change                   |
+| `bun run migrate`                  | Apply database migrations                                             |
 
 The tests need an editor. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`, then run `bun run seed`. Run `bun run build && bun run smoke` to test the production apps. The suite creates temporary content and removes it afterward. CI runs type checks, formatting, generated-file checks, a production build, fresh-database migrations, and these integration checks.
+
+The create-astro check requires a Git checkout. It serves an archive of `HEAD` to the real CLI, installs the generated project's dependencies, and runs setup, seed, type checks, a production build, and HTTP tests in a temporary directory. CI runs it separately so the template remains usable when its files or dependencies change.
 
 ## Project layout
 
